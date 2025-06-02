@@ -1,20 +1,24 @@
 package com.vio.notificationlib.presentation
 
+import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
+import android.widget.RemoteViews
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
+import com.vio.notificationlib.R
 import com.vio.notificationlib.domain.entities.NotificationConfig
 import java.text.SimpleDateFormat
 import java.util.*
 
 class NotificationManager(
     private val context: Context,
-    private val activityClass: Class<*>?
 ) {
     private val notificationManager: NotificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -31,7 +35,7 @@ class NotificationManager(
             val channel = NotificationChannel(
                 CHANNEL_ID,
                 "Custom Notifications",
-                NotificationManager.IMPORTANCE_DEFAULT
+                NotificationManager.IMPORTANCE_HIGH // Đặt mức độ quan trọng cao cho fullscreen
             ).apply {
                 description = "Channel for custom notifications"
             }
@@ -42,51 +46,93 @@ class NotificationManager(
     }
 
     fun showNotification(config: NotificationConfig) {
-        Log.d(TAG, "Notification triggered at ${dateFormat.format(Date())}: id=${config.id}, title=${config.title}, body=${config.body}, targetFeature=${config.targetFeature}, customLayout=${config.customLayout}")
-        val notificationId = config.id
-        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setContentTitle(config.title)
-            .setContentText(config.body)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setAutoCancel(true)
+        Log.d(TAG, "Notification triggered at ${dateFormat.format(Date())}: id=${config.id}, title=${config.title}, body=${config.body}, targetFeature=${config.targetFeature}, customLayout=${config.customLayout}, notificationType=${config.notificationType}")
 
-        config.customLayout?.let {
-            try {
-                builder.setStyle(NotificationCompat.DecoratedCustomViewStyle())
-                builder.setCustomContentView(android.widget.RemoteViews(context.packageName, it))
-                Log.d(TAG, "Applied custom layout: $it")
-            } catch (e: Exception) {
-                Log.e(TAG, "Error applying custom layout", e)
-            }
+        when (config.notificationType) {
+            "FULLSCREEN" -> createNotificationStandard(config, true)
+            else -> createNotificationStandard(config, false)
+        }
+    }
+
+    private fun createNotificationStandard(config: NotificationConfig, isFullscreen: Boolean) {
+        Log.d(TAG, "createNotificationStandard: isFullscreen=$isFullscreen")
+        val notificationContent = config.title
+        val notificationDescription = config.body
+
+        // Create custom views
+        val view = RemoteViews(context.packageName, R.layout.notification_layout).apply {
+            setTextViewText(R.id.txtContentNoti, notificationContent)
+            setOnClickPendingIntent(R.id.llNotiParent, getPendingIntentActivity(config))
         }
 
-        activityClass?.let {
-            try {
-                val intent = Intent(context, it).apply {
-                    config.targetFeature?.let { feature -> putExtra("target_feature", feature) }
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-                }
-                val pendingIntent = PendingIntent.getActivity(
-                    context,
-                    notificationId,
-                    intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-                )
-                builder.setContentIntent(pendingIntent)
-                Log.d(TAG, "Set PendingIntent for activity: ${it.simpleName}")
-            } catch (e: Exception) {
-                Log.e(TAG, "Error setting PendingIntent", e)
+        val expandedView = RemoteViews(context.packageName, R.layout.notification_layout_expanded).apply {
+            setTextViewText(R.id.txtContentNoti, notificationContent)
+            setTextViewText(R.id.txtDescriptionNoti, notificationDescription)
+            setOnClickPendingIntent(R.id.llNotiParent, getPendingIntentActivity(config))
+        }
+
+        val headerView = RemoteViews(context.packageName, R.layout.notification_layout_header).apply {
+            setTextViewText(R.id.txtContentNoti, notificationContent)
+            setTextViewText(R.id.txtDescriptionNoti, notificationDescription)
+            setOnClickPendingIntent(R.id.llNotiParent, getPendingIntentActivity(config))
+        }
+
+        val notificationBuilder = NotificationCompat.Builder(context, CHANNEL_ID)
+            .setStyle(NotificationCompat.DecoratedCustomViewStyle())
+            .setSmallIcon(R.drawable.ic_notification)
+            .setCustomContentView(view)
+            .setCustomBigContentView(expandedView)
+            .setCustomHeadsUpContentView(headerView)
+            .setPriority(NotificationCompat.PRIORITY_MAX)
+            .setAutoCancel(true)
+
+        if (isFullscreen) {
+            val fullScreenIntent = Intent(context, FullscreenNotificationActivity::class.java).apply {
+                putExtra("schedule_data", config)
+                putExtra("title", config.title)
+                putExtra("body", config.body)
+                config.targetFeature?.let { putExtra("target_feature", it) }
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             }
+            val fullScreenPendingIntent = PendingIntent.getActivity(
+                context, config.id, fullScreenIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            notificationBuilder.setFullScreenIntent(fullScreenPendingIntent, true)
+            Log.d(TAG, "Set fullscreen intent for notification id=${config.id}")
+        } else {
+            notificationBuilder.setContentIntent(getPendingIntentActivity(config))
+        }
+
+        if (ActivityCompat.checkSelfPermission(
+                context, Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            Log.e(TAG, "Missing POST_NOTIFICATIONS permission")
+            return
         }
 
         try {
-            notificationManager.notify(notificationId, builder.build())
-            Log.d(TAG, "Notification sent: id=$notificationId at ${dateFormat.format(Date())}")
+            notificationManager.notify(config.id, notificationBuilder.build())
+            Log.d(TAG, "Notification sent: id=${config.id}, isFullscreen=$isFullscreen at ${dateFormat.format(Date())}")
         } catch (e: SecurityException) {
-            Log.e(TAG, "SecurityException: Missing POST_NOTIFICATIONS permission or other security issue", e)
+            Log.e(TAG, "SecurityException: Missing permissions or other security issue", e)
         } catch (e: Exception) {
             Log.e(TAG, "Error sending notification", e)
+        }
+    }
+
+    private fun getPendingIntentActivity(config: NotificationConfig): PendingIntent? {
+
+        return config.activityClassName.let {
+            val intent = Intent(context, it).apply {
+                config.targetFeature?.let { feature -> putExtra("target_feature", feature) }
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            }
+            PendingIntent.getActivity(
+                context, config.id, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
         }
     }
 

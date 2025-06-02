@@ -15,5 +15,6 @@ data class NotificationConfig(
     val repeat: Boolean = false,
     val targetFeature: String? = null,
     val customLayout: Int? = null,
-    val activityClass: Class<*>?
+    val activityClassName: Class<*>,
+    val notificationType: String = "STANDARD" // STANDARD hoặc FULLSCREEN
 ) : Parcelable

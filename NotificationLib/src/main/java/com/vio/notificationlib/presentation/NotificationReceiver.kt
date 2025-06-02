@@ -31,12 +31,12 @@ class NotificationReceiver : BroadcastReceiver() {
 
         Log.d(
             TAG,
-            "Received config: id=${config.id}, title=${config.title}, body=${config.body}, day=$day, activityClassName=$activityClassName   ${config.activityClass}"
+            "Received config: id=${config.id}, title=${config.title}, body=${config.body}, day=$day, activityClassName=$activityClassName   ${config.activityClassName.simpleName}"
         )
 
         try {
 
-            val notificationManager = NotificationManager(context, config.activityClass)
+            val notificationManager = NotificationManager(context)
             notificationManager.showNotification(config)
             Log.d(TAG, "NotificationReceiver completed successfully for id=${config.id}")
 
