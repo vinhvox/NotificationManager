@@ -1,5 +1,6 @@
 package com.vio.notificationlib.presentation
 
+import android.app.KeyguardManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -36,8 +37,16 @@ class NotificationReceiver : BroadcastReceiver() {
 
         try {
 
-            val notificationManager = NotificationManager(context)
-            notificationManager.showNotification(config)
+            val keyguardManager =
+                context.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+            val powerManager =
+                context.getSystemService(Context.POWER_SERVICE) as android.os.PowerManager
+            val isDeviceLockedOrNotInteractive =
+                !powerManager.isInteractive || keyguardManager.isKeyguardLocked
+            if (isDeviceLockedOrNotInteractive) {
+                val notificationManager = NotificationManager(context)
+                notificationManager.showNotification(config)
+            }
             Log.d(TAG, "NotificationReceiver completed successfully for id=${config.id}")
 
             if (config.repeat) {

@@ -12,6 +12,8 @@ import android.util.Log
 import android.widget.RemoteViews
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import com.vio.notificationlib.R
 import com.vio.notificationlib.domain.entities.NotificationConfig
 import java.text.SimpleDateFormat

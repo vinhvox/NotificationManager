@@ -11,11 +11,15 @@ import android.view.WindowManager
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
+import androidx.core.os.bundleOf
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
+import com.google.firebase.Firebase
+import com.google.firebase.analytics.analytics
+import com.google.firebase.analytics.ktx.analytics
 import com.vio.notificationlib.R
 import com.vio.notificationlib.databinding.ActivityFullscreenNotificationBinding
 import com.vio.notificationlib.domain.entities.NotificationConfig
@@ -36,7 +40,11 @@ class FullscreenNotificationActivity : AppCompatActivity() {
         } else {
             intent.getParcelableExtra("schedule_data")
         }?.let { content ->
-            binding.txtContentNoti.text = content.title
+           Firebase.analytics.logEvent("content_lockscreen_view", bundleOf().apply {
+               putInt("content_type", content.id)
+           })
+
+           binding.txtContentNoti.text = content.title
             binding.txtDescriptionNoti.text = content.body
             binding.txtOpenNow.text = content.cta
             binding.imgContent.loadWithFallback(
@@ -49,6 +57,9 @@ class FullscreenNotificationActivity : AppCompatActivity() {
             )
             binding.txtOpenNow.text = content.cta
            binding.txtOpenNow.setOnClickListener {
+               Firebase.analytics.logEvent("content_lockscreen_click", bundleOf().apply {
+                   putInt("content_type", content.id)
+               })
                val intent = Intent(this, content.activityClassName).apply {
                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
                    putExtra("isFromLockScreen", true)
@@ -58,17 +69,20 @@ class FullscreenNotificationActivity : AppCompatActivity() {
                finish()
            }
            binding.ctlPattenLock.setOnClickListener {
+               Firebase.analytics.logEvent("content_lockscreen_click", bundleOf().apply {
+                   putInt("content_type", content.id)
+               })
                val intent = Intent(this, content.activityClassName).apply {
                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
                    putExtra("isFromLockScreen", true)
                    putExtra("target_feature", content.targetFeature)
                }
                startActivity(intent)
-               finish()
+               finishAffinity()
            }
         }
         binding.txtClose.setOnClickListener {
-            finish()
+            finishAffinity()
         }
     }
 

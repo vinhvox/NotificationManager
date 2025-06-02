@@ -48,6 +48,7 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     implementation ("androidx.work:work-runtime-ktx:2.10.1")
     implementation ("com.google.firebase:firebase-config:22.1.2")
+    implementation ("com.google.firebase:firebase-analytics:22.1.2")
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
     implementation ("com.intuit.sdp:sdp-android:1.1.1")
     implementation ("com.intuit.ssp:ssp-android:1.1.1")
