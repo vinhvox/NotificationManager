@@ -1,13 +1,18 @@
 package com.vio.notificationlib.domain.entities
 
+
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
 data class NotificationConfig(
-    val id: String,
+    val id: Int,
     val title: String,
     val body: String,
-    val scheduleType: String, // daily, weekly, monthly
-    val scheduleTime: TimeConfig, // hour and minute
-    val days: List<Int>? = null, // Days of week (1-7) or month (1-31)
+    val scheduleType: String, // "daily", "weekly", "monthly"
+    val scheduleTime: TimeConfig,
+    val days: List<Int>? = null, // For weekly (1-7) or monthly (1-31)
     val repeat: Boolean,
-    val targetFeature: String? = null, // Feature or action identifier
-    val customLayout: Int? = null // Resource ID for custom notification layout
-)
+    val targetFeature: String? = null,
+    val customLayout: Int? = null
+) : Parcelable
