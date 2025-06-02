@@ -1,6 +1,7 @@
 package com.vio.notificationlib.presentation
 
 import android.Manifest
+import android.app.KeyguardManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -88,7 +89,8 @@ class NotificationManager(
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setAutoCancel(true)
 
-        if (isFullscreen) {
+        // Chỉ sử dụng fullScreenPendingIntent khi thiết bị khóa
+        if (isFullscreen && isDeviceLocked(context)) {
             val fullScreenIntent = Intent(context, FullscreenNotificationActivity::class.java).apply {
                 putExtra("schedule_data", config)
                 putExtra("title", config.title)
@@ -124,6 +126,11 @@ class NotificationManager(
         }
     }
 
+
+    private fun isDeviceLocked(context: Context): Boolean {
+        val keyguardManager = context.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+        return keyguardManager.isKeyguardLocked
+    }
     private fun getPendingIntentActivity(config: NotificationConfig): PendingIntent? {
 
         return config.activityClassName.let {

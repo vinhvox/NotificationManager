@@ -9,6 +9,7 @@ import android.util.Log
 import com.vio.notificationlib.data.datasource.AlarmNotificationScheduler
 import com.vio.notificationlib.domain.entities.NotificationConfig
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
@@ -43,7 +44,10 @@ class NotificationReceiver : BroadcastReceiver() {
                 context.getSystemService(Context.POWER_SERVICE) as android.os.PowerManager
             val isDeviceLockedOrNotInteractive =
                 !powerManager.isInteractive || keyguardManager.isKeyguardLocked
-            if (isDeviceLockedOrNotInteractive) {
+            if (isDeviceLockedOrNotInteractive && isToday(
+                    intent.getLongExtra("time_show", 0)
+                )
+            ) {
                 val notificationManager = NotificationManager(context)
                 notificationManager.showNotification(config)
             }
@@ -57,6 +61,14 @@ class NotificationReceiver : BroadcastReceiver() {
         } catch (e: Exception) {
             Log.e(TAG, "NotificationReceiver failed for id=${config.id}", e)
         }
+    }
+
+    private fun isToday(dateInMillis: Long): Boolean {
+        val today: Calendar = Calendar.getInstance()
+        val targetDate: Calendar = Calendar.getInstance()
+        targetDate.setTimeInMillis(dateInMillis)
+        return today.get(Calendar.YEAR) === targetDate.get(Calendar.YEAR) &&
+                today.get(Calendar.DAY_OF_YEAR) === targetDate.get(Calendar.DAY_OF_YEAR)
     }
 
     companion object {

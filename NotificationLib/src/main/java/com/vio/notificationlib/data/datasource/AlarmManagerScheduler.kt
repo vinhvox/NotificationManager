@@ -66,15 +66,7 @@ class AlarmNotificationScheduler(private val context: Context) : NotificationSch
     }
 
     private fun scheduleDaily(config: NotificationConfig) {
-        val intent = Intent(context, NotificationReceiver::class.java).apply {
-            putExtra("config", config)
-        }
-        val pendingIntent = PendingIntent.getBroadcast(
-            context,
-            config.id,
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
+
         val calendar = Calendar.getInstance()
         calendar.set(Calendar.HOUR_OF_DAY, config.scheduleTime.hour)
         calendar.set(Calendar.MINUTE, config.scheduleTime.minute)
@@ -82,6 +74,16 @@ class AlarmNotificationScheduler(private val context: Context) : NotificationSch
         if (calendar.timeInMillis < System.currentTimeMillis()) {
             calendar.add(Calendar.DATE, 1)
         }
+        val intent = Intent(context, NotificationReceiver::class.java).apply {
+            putExtra("config", config)
+            putExtra("time_show", calendar.timeInMillis)
+        }
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            config.id,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager.canScheduleExactAlarms()) {
             alarmManager.setAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,
@@ -107,16 +109,8 @@ class AlarmNotificationScheduler(private val context: Context) : NotificationSch
 
     private fun scheduleWeekly(config: NotificationConfig) {
         val days = config.days ?: listOf(1, 2, 3, 4, 5, 6, 7)
-        val intent = Intent(context, NotificationReceiver::class.java).apply {
-            putExtra("config", config)
-        }
+
         days.forEach { day ->
-            val pendingIntent = PendingIntent.getBroadcast(
-                context,
-                config.id + 19 + day,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
             val calendar = Calendar.getInstance()
             try {
                 calendar.set(Calendar.DAY_OF_WEEK, day)
@@ -128,6 +122,16 @@ class AlarmNotificationScheduler(private val context: Context) : NotificationSch
             if (calendar.timeInMillis < System.currentTimeMillis()) {
                 calendar.add(Calendar.DATE, 7)
             }
+            val intent = Intent(context, NotificationReceiver::class.java).apply {
+                putExtra("config", config)
+                putExtra("time_show", calendar.timeInMillis)
+            }
+            val pendingIntent = PendingIntent.getBroadcast(
+                context,
+                config.id + 19 + day,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager.canScheduleExactAlarms()) {
                     alarmManager.setAndAllowWhileIdle(
@@ -162,15 +166,6 @@ class AlarmNotificationScheduler(private val context: Context) : NotificationSch
         val days = config.days ?: (1..31).toList()
         days.forEach { day ->
             if (day in 1..31) {
-                val intent = Intent(context, NotificationReceiver::class.java).apply {
-                    putExtra("config", config)
-                }
-                val pendingIntent = PendingIntent.getBroadcast(
-                    context,
-                    config.id + 999 + day,
-                    intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-                )
                 val calendar = Calendar.getInstance()
                 val currentMonth = calendar.get(Calendar.MONTH)
                 calendar.set(Calendar.DAY_OF_MONTH, day)
@@ -182,6 +177,16 @@ class AlarmNotificationScheduler(private val context: Context) : NotificationSch
                         if (calendar.timeInMillis < System.currentTimeMillis()) {
                             calendar.add(Calendar.DATE, 31)
                         }
+                        val intent = Intent(context, NotificationReceiver::class.java).apply {
+                            putExtra("config", config)
+                            putExtra("time_show", calendar.timeInMillis)
+                        }
+                        val pendingIntent = PendingIntent.getBroadcast(
+                            context,
+                            config.id + 999 + day,
+                            intent,
+                            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                        )
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager.canScheduleExactAlarms()) {
                             alarmManager.setAndAllowWhileIdle(
                                 AlarmManager.RTC_WAKEUP,
@@ -204,6 +209,16 @@ class AlarmNotificationScheduler(private val context: Context) : NotificationSch
                         if (calendar.timeInMillis < System.currentTimeMillis()) {
                             calendar.add(Calendar.DATE, 30)
                         }
+                        val intent = Intent(context, NotificationReceiver::class.java).apply {
+                            putExtra("config", config)
+                            putExtra("time_show", calendar.timeInMillis)
+                        }
+                        val pendingIntent = PendingIntent.getBroadcast(
+                            context,
+                            config.id + 999 + day,
+                            intent,
+                            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                        )
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager.canScheduleExactAlarms()) {
                             alarmManager.setAndAllowWhileIdle(
                                 AlarmManager.RTC_WAKEUP,
@@ -228,6 +243,16 @@ class AlarmNotificationScheduler(private val context: Context) : NotificationSch
                             if (calendar.timeInMillis < System.currentTimeMillis()) {
                                 calendar.add(Calendar.DATE, 29)
                             }
+                            val intent = Intent(context, NotificationReceiver::class.java).apply {
+                                putExtra("config", config)
+                                putExtra("time_show", calendar.timeInMillis)
+                            }
+                            val pendingIntent = PendingIntent.getBroadcast(
+                                context,
+                                config.id + 999 + day,
+                                intent,
+                                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                            )
                             alarmManager.setAndAllowWhileIdle(
                                 AlarmManager.RTC_WAKEUP,
                                 calendar.timeInMillis,
@@ -237,6 +262,16 @@ class AlarmNotificationScheduler(private val context: Context) : NotificationSch
                             if (calendar.timeInMillis < System.currentTimeMillis()) {
                                 calendar.add(Calendar.DATE, 28)
                             }
+                            val intent = Intent(context, NotificationReceiver::class.java).apply {
+                                putExtra("config", config)
+                                putExtra("time_show", calendar.timeInMillis)
+                            }
+                            val pendingIntent = PendingIntent.getBroadcast(
+                                context,
+                                config.id + 999 + day,
+                                intent,
+                                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                            )
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager.canScheduleExactAlarms()) {
                                 alarmManager.setAndAllowWhileIdle(
                                     AlarmManager.RTC_WAKEUP,
