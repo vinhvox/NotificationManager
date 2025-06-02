@@ -1,6 +1,5 @@
 package com.vio.notificationlib.data.datasource
 
-import android.content.Context
 import android.util.Log
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.vio.notificationlib.domain.entities.NotificationConfig
@@ -34,6 +33,9 @@ class FirebaseRemoteConfigDataSource(
                 val id = jsonObject.getInt("id")
                 val title = jsonObject.getString("title")
                 val body = jsonObject.getString("body")
+                val cta = jsonObject.getString("cta")
+                val imageUrl = jsonObject.getString("imageUrl")
+                val backgroundUrl = jsonObject.getString("backgroundUrl")
                 val scheduleType = jsonObject.getString("schedule_type")
                 val timeConfig = parseTimeConfig(jsonObject.getJSONObject("schedule_time"))
                 val days = jsonObject.optJSONArray("days")?.let { array ->
@@ -49,6 +51,9 @@ class FirebaseRemoteConfigDataSource(
                         id = id,
                         title = title,
                         body = body,
+                        cta = cta,
+                        imageUrl = imageUrl,
+                        backgroundUrl = backgroundUrl,
                         scheduleType = scheduleType,
                         scheduleTime = timeConfig,
                         days = days,

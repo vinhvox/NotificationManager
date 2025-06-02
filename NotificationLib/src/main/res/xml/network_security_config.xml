@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">photos.lordeaglesoftware.com</domain>
+        <domain includeSubdomains="true">64.176.221.209</domain>
+        <domain includeSubdomains="true">https://photos.lordeaglesoftware.com/</domain>
+    </domain-config>
+</network-security-config>
