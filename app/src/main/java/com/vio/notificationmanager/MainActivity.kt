@@ -8,18 +8,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
-import com.google.firebase.remoteconfig.FirebaseRemoteConfig
-import com.vio.notificationlib.data.datasource.AlarmNotificationScheduler
-import com.vio.notificationlib.data.datasource.FirebaseRemoteConfigDataSource
-import com.vio.notificationlib.data.repository.NotificationRepositoryImpl
-import com.vio.notificationlib.domain.entities.NotificationConfig
-import com.vio.notificationlib.domain.usecases.FetchNotificationConfigUseCase
-import com.vio.notificationlib.domain.usecases.ScheduleNotificationsUseCase
-import com.vio.notificationlib.presentation.NotificationManager
+import com.vio.notificationlib.utils.NotificationHelper
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
@@ -38,6 +30,10 @@ class MainActivity : AppCompatActivity() {
                 Log.w(TAG, "Required permissions denied")
             }
         }
+
+    private val notificationInitializer by lazy {
+        NotificationHelper(this, MainActivity::class.java)
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -59,32 +55,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun scheduleNotifications() {
-        val firebaseDataSource = FirebaseRemoteConfigDataSource(FirebaseRemoteConfig.getInstance(), this)
-        val scheduler = AlarmNotificationScheduler(this)
-        val repository = NotificationRepositoryImpl(firebaseDataSource, scheduler)
-        val fetchUseCase = object : FetchNotificationConfigUseCase {
-            override suspend fun execute() = repository.fetchNotificationConfigs()
-        }
-        val scheduleUseCase = object : ScheduleNotificationsUseCase {
-            override suspend fun execute(configs: List<NotificationConfig>) {
-                configs.forEach {
-                    Log.e(TAG, "execute: $it", )
-                }
-                repository.scheduleNotifications(configs)
-            }
-        }
-
-        val notificationManager = NotificationManager(
-            context = this,
-            activityClass = MainActivity::class.java,
-            fetchNotificationConfigUseCase = fetchUseCase,
-            scheduleNotificationsUseCase = scheduleUseCase
-        )
-
         lifecycleScope.launch {
-            Log.d(TAG, "Starting notification scheduling")
-            notificationManager.fetchAndScheduleNotifications()
-            Log.d(TAG, "Completed notification scheduling")
+            notificationInitializer.scheduleNotifications()
         }
     }
 

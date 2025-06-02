@@ -90,7 +90,7 @@ class AlarmNotificationScheduler(private val context: Context) : NotificationSch
             )
             Log.d(
                 TAG,
-                "Enqueued inexact alarm (no SCHEDULE_EXACT_ALARM): id=${config.id}, , trigger=${calendar.timeInMillis.longToDateString()}"
+                "Enqueued inexact alarm (no SCHEDULE_EXACT_ALARM): id=${config.id}, trigger=${calendar.timeInMillis.longToDateString()}"
             )
         } else {
             alarmManager.setExactAndAllowWhileIdle(
@@ -101,7 +101,7 @@ class AlarmNotificationScheduler(private val context: Context) : NotificationSch
         }
         Log.e(
             TAG,
-            "ScheduleDay:  ${calendar.timeInMillis.longToDateString("dd/MM/yy  HH:mm")} ${config.scheduleTime.hour} : ${config.scheduleTime.minute}"
+            "ScheduleDay: ${calendar.timeInMillis.longToDateString("dd/MM/yy HH:mm")} ${config.scheduleTime.hour}:${config.scheduleTime.minute}"
         )
     }
 
@@ -122,9 +122,7 @@ class AlarmNotificationScheduler(private val context: Context) : NotificationSch
                 calendar.set(Calendar.DAY_OF_WEEK, day)
             } catch (_: Exception) {
             }
-            calendar.set(
-                Calendar.HOUR_OF_DAY, config.scheduleTime.hour
-            )
+            calendar.set(Calendar.HOUR_OF_DAY, config.scheduleTime.hour)
             calendar.set(Calendar.MINUTE, config.scheduleTime.minute)
             calendar.set(Calendar.SECOND, 0)
             if (calendar.timeInMillis < System.currentTimeMillis()) {
@@ -150,20 +148,18 @@ class AlarmNotificationScheduler(private val context: Context) : NotificationSch
                 }
                 Log.e(
                     TAG,
-                    "ScheduleWeek: ${calendar.timeInMillis.longToDateString("dd/MM/yy  HH:mm")}  ${config.scheduleTime.hour} : ${config.scheduleTime.minute} day = $day"
+                    "ScheduleWeek: ${calendar.timeInMillis.longToDateString("dd/MM/yy HH:mm")} ${config.scheduleTime.hour}:${config.scheduleTime.minute} day=$day"
                 )
             } catch (e: SecurityException) {
                 Log.e(TAG, "SecurityException: Missing SCHEDULE_EXACT_ALARM permission", e)
             } catch (e: Exception) {
                 Log.e(TAG, "Error scheduling alarm: id=${config.id}, day=$day", e)
             }
-
         }
     }
 
     private fun scheduleMonthly(config: NotificationConfig) {
         val days = config.days ?: (1..31).toList()
-
         days.forEach { day ->
             if (day in 1..31) {
                 val intent = Intent(context, NotificationReceiver::class.java).apply {
@@ -204,7 +200,6 @@ class AlarmNotificationScheduler(private val context: Context) : NotificationSch
                             )
                         }
                     }
-
                     Calendar.APRIL, Calendar.JUNE, Calendar.SEPTEMBER, Calendar.NOVEMBER -> {
                         if (calendar.timeInMillis < System.currentTimeMillis()) {
                             calendar.add(Calendar.DATE, 30)
@@ -227,11 +222,9 @@ class AlarmNotificationScheduler(private val context: Context) : NotificationSch
                             )
                         }
                     }
-
                     Calendar.FEBRUARY -> {
-                        val cal: GregorianCalendar =
-                            GregorianCalendar.getInstance() as GregorianCalendar
-                        if (cal.isLeapYear(calendar.get(Calendar.YEAR))) { //for leap year feburary month
+                        val cal: GregorianCalendar = GregorianCalendar.getInstance() as GregorianCalendar
+                        if (cal.isLeapYear(calendar.get(Calendar.YEAR))) {
                             if (calendar.timeInMillis < System.currentTimeMillis()) {
                                 calendar.add(Calendar.DATE, 29)
                             }
@@ -240,7 +233,7 @@ class AlarmNotificationScheduler(private val context: Context) : NotificationSch
                                 calendar.timeInMillis,
                                 pendingIntent
                             )
-                        } else { //for non leap year feburary month
+                        } else {
                             if (calendar.timeInMillis < System.currentTimeMillis()) {
                                 calendar.add(Calendar.DATE, 28)
                             }
@@ -266,7 +259,7 @@ class AlarmNotificationScheduler(private val context: Context) : NotificationSch
                 }
                 Log.e(
                     TAG,
-                    "ScheduleMonth:  ${calendar.timeInMillis.longToDateString("dd/MM/yy  HH:mm")}  ${config.scheduleTime.hour} : ${config.scheduleTime.minute}"
+                    "ScheduleMonth: ${calendar.timeInMillis.longToDateString("dd/MM/yy HH:mm")} ${config.scheduleTime.hour}:${config.scheduleTime.minute}"
                 )
             }
         }

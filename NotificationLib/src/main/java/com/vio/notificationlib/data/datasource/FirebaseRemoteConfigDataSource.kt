@@ -11,7 +11,7 @@ import org.json.JSONObject
 
 class FirebaseRemoteConfigDataSource(
     private val remoteConfig: FirebaseRemoteConfig,
-    private val context: Context
+    private val activityClass: Class<*>
 ) {
     suspend fun getNotificationConfigs(): List<NotificationConfig> {
         return try {
@@ -53,7 +53,8 @@ class FirebaseRemoteConfigDataSource(
                         days = days,
                         repeat = repeat,
                         targetFeature = targetFeature,
-                        customLayout = customLayout
+                        customLayout = customLayout,
+                        activityClass = activityClass
                     )
                 )
             }

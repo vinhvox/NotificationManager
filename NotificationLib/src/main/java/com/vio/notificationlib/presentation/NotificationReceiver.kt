@@ -7,10 +7,9 @@ import android.os.Build
 import android.util.Log
 import com.vio.notificationlib.data.datasource.AlarmNotificationScheduler
 import com.vio.notificationlib.domain.entities.NotificationConfig
-import com.vio.notificationlib.domain.usecases.FetchNotificationConfigUseCase
-import com.vio.notificationlib.domain.usecases.ScheduleNotificationsUseCase
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 class NotificationReceiver : BroadcastReceiver() {
     private val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
@@ -23,32 +22,22 @@ class NotificationReceiver : BroadcastReceiver() {
             intent.getParcelableExtra("config")
         }
         val day = intent.getIntExtra("day", 0)
+        val activityClassName = intent.getStringExtra("activity_class_name")
 
         if (config == null) {
             Log.e(TAG, "Missing notification config")
             return
         }
 
-        Log.d(TAG, "Received config: id=${config.id}, title=${config.title}, body=${config.body}, day=$day")
+        Log.d(
+            TAG,
+            "Received config: id=${config.id}, title=${config.title}, body=${config.body}, day=$day, activityClassName=$activityClassName   ${config.activityClass}"
+        )
 
         try {
-            val notificationManager = NotificationManager(
-                context,
-                null,
-                object : FetchNotificationConfigUseCase {
-                    override suspend fun execute(): List<NotificationConfig> = emptyList()
-                },
-                object : ScheduleNotificationsUseCase {
-                    override suspend fun execute(configs: List<NotificationConfig>) {}
-                }
-            )
-            notificationManager.showNotification(
-                config.id,
-                config.title,
-                config.body,
-                config.targetFeature,
-                config.customLayout
-            )
+
+            val notificationManager = NotificationManager(context, config.activityClass)
+            notificationManager.showNotification(config)
             Log.d(TAG, "NotificationReceiver completed successfully for id=${config.id}")
 
             if (config.repeat) {

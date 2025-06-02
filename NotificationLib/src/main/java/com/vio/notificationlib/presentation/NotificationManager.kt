@@ -8,16 +8,13 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import com.vio.notificationlib.domain.usecases.FetchNotificationConfigUseCase
-import com.vio.notificationlib.domain.usecases.ScheduleNotificationsUseCase
+import com.vio.notificationlib.domain.entities.NotificationConfig
 import java.text.SimpleDateFormat
 import java.util.*
 
 class NotificationManager(
     private val context: Context,
-    private val activityClass: Class<*>?,
-    private val fetchNotificationConfigUseCase: FetchNotificationConfigUseCase,
-    private val scheduleNotificationsUseCase: ScheduleNotificationsUseCase
+    private val activityClass: Class<*>?
 ) {
     private val notificationManager: NotificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -44,23 +41,17 @@ class NotificationManager(
         }
     }
 
-    suspend fun fetchAndScheduleNotifications() {
-        val configs = fetchNotificationConfigUseCase.execute()
-        Log.d(TAG, "Fetched ${configs.size} notification configs: ${configs.map { it.id }}")
-        scheduleNotificationsUseCase.execute(configs)
-    }
-
-    fun showNotification(id: Int, title: String, body: String, targetFeature: String?, customLayout: Int?) {
-        Log.d(TAG, "Notification triggered at ${dateFormat.format(Date())}: id=$id, title=$title, body=$body, targetFeature=$targetFeature, customLayout=$customLayout")
-        val notificationId = id
+    fun showNotification(config: NotificationConfig) {
+        Log.d(TAG, "Notification triggered at ${dateFormat.format(Date())}: id=${config.id}, title=${config.title}, body=${config.body}, targetFeature=${config.targetFeature}, customLayout=${config.customLayout}")
+        val notificationId = config.id
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setContentTitle(title)
-            .setContentText(body)
+            .setContentTitle(config.title)
+            .setContentText(config.body)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setAutoCancel(true)
 
-        customLayout?.let {
+        config.customLayout?.let {
             try {
                 builder.setStyle(NotificationCompat.DecoratedCustomViewStyle())
                 builder.setCustomContentView(android.widget.RemoteViews(context.packageName, it))
@@ -73,7 +64,7 @@ class NotificationManager(
         activityClass?.let {
             try {
                 val intent = Intent(context, it).apply {
-                    targetFeature?.let { feature -> putExtra("target_feature", feature) }
+                    config.targetFeature?.let { feature -> putExtra("target_feature", feature) }
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
                 }
                 val pendingIntent = PendingIntent.getActivity(
@@ -91,7 +82,7 @@ class NotificationManager(
 
         try {
             notificationManager.notify(notificationId, builder.build())
-            Log.d(TAG, "Notification sent: id=$id at ${dateFormat.format(Date())}")
+            Log.d(TAG, "Notification sent: id=$notificationId at ${dateFormat.format(Date())}")
         } catch (e: SecurityException) {
             Log.e(TAG, "SecurityException: Missing POST_NOTIFICATIONS permission or other security issue", e)
         } catch (e: Exception) {
