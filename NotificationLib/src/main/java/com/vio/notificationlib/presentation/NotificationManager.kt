@@ -86,6 +86,7 @@ class NotificationManager(
             .setCustomContentView(view)
             .setCustomBigContentView(expandedView)
             .setCustomHeadsUpContentView(headerView)
+            .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setAutoCancel(true)
 
