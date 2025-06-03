@@ -9,7 +9,9 @@ import android.os.Looper
 import android.util.Log
 import android.view.WindowManager
 import android.widget.ImageView
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.net.toUri
 import androidx.core.os.bundleOf
 import com.bumptech.glide.Glide
@@ -19,7 +21,6 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.google.firebase.Firebase
 import com.google.firebase.analytics.analytics
-import com.google.firebase.analytics.ktx.analytics
 import com.vio.notificationlib.R
 import com.vio.notificationlib.databinding.ActivityFullscreenNotificationBinding
 import com.vio.notificationlib.domain.entities.NotificationConfig
@@ -66,6 +67,7 @@ class FullscreenNotificationActivity : AppCompatActivity() {
                    putExtra("target_feature", content.targetFeature)
                }
                startActivity(intent)
+               cancelNotification(content.id)
                finish()
            }
            binding.ctlPattenLock.setOnClickListener {
@@ -78,15 +80,33 @@ class FullscreenNotificationActivity : AppCompatActivity() {
                    putExtra("target_feature", content.targetFeature)
                }
                startActivity(intent)
+               cancelNotification(content.id)
                finishAffinity()
            }
+           binding.txtClose.setOnClickListener {
+               cancelNotification(content.id)
+               finishAffinity()
+           }
+           onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+               override fun handleOnBackPressed() {
+                   cancelNotification(content.id)
+                   finishAffinity()
+               }
+
+           })
         }
-        binding.txtClose.setOnClickListener {
-            finishAffinity()
+
+    }
+
+    private fun cancelNotification(notificationId: Int) {
+        try {
+            NotificationManagerCompat.from(this).cancel(notificationId)
+        } catch (_: Exception) {
+
         }
     }
 
-    fun ImageView.loadWithFallback(
+    private fun ImageView.loadWithFallback(
         url: String,
         placeholderRes: Int,
         fallbackDomain: String = "https://photos.lordeaglesoftware.com/",
@@ -96,6 +116,7 @@ class FullscreenNotificationActivity : AppCompatActivity() {
         val uri = url.trim().toUri()
         Glide.with(context).load(uri)
             .placeholder(placeholderRes)
+            .error(placeholderRes)
             .diskCacheStrategy(DiskCacheStrategy.DATA)
             .listener(object : RequestListener<Drawable> {
                 override fun onLoadFailed(
@@ -112,6 +133,7 @@ class FullscreenNotificationActivity : AppCompatActivity() {
                             Glide.with(context)
                                 .load(fallbackUrl.toUri())
                                 .placeholder(placeholderRes)
+                                .error(placeholderRes)
                                 .diskCacheStrategy(DiskCacheStrategy.DATA)
                                 .into(this@loadWithFallback)
                         }
