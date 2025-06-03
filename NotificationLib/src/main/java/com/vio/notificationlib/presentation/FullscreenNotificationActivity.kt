@@ -84,11 +84,17 @@ class FullscreenNotificationActivity : AppCompatActivity() {
                finishAffinity()
            }
            binding.txtClose.setOnClickListener {
+               Firebase.analytics.logEvent("close_lockscreen_click", bundleOf().apply {
+                   putInt("content_type", content.id)
+               })
                cancelNotification(content.id)
                finishAffinity()
            }
            onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
                override fun handleOnBackPressed() {
+                   Firebase.analytics.logEvent("close_lockscreen_click", bundleOf().apply {
+                       putInt("content_type", content.id)
+                   })
                    cancelNotification(content.id)
                    finishAffinity()
                }
