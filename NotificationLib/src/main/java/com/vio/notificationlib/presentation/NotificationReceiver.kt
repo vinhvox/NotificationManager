@@ -44,12 +44,24 @@ class NotificationReceiver : BroadcastReceiver() {
                 context.getSystemService(Context.POWER_SERVICE) as android.os.PowerManager
             val isDeviceLockedOrNotInteractive =
                 !powerManager.isInteractive || keyguardManager.isKeyguardLocked
-            if (isDeviceLockedOrNotInteractive && isToday(
+            if (isToday(
                     intent.getLongExtra("time_show", 0)
                 )
             ) {
-                val notificationManager = NotificationManager(context)
-                notificationManager.showNotification(config)
+                when (config.notificationType) {
+                    "FULLSCREEN" -> {
+                        if (isDeviceLockedOrNotInteractive){
+                            val notificationManager = NotificationManager(context)
+                            notificationManager.showNotification(config)
+                        }
+
+                    }
+                    else -> {
+                        val notificationManager = NotificationManager(context)
+                        notificationManager.showNotification(config)
+                    }
+                }
+
             }
             Log.d(TAG, "NotificationReceiver completed successfully for id=${config.id}")
 
