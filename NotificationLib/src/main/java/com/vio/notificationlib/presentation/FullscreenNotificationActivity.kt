@@ -88,7 +88,7 @@ class FullscreenNotificationActivity : AppCompatActivity() {
                    putInt("content_type", content.id)
                })
                cancelNotification(content.id)
-               finishAffinity()
+               finish()
            }
            onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
                override fun handleOnBackPressed() {
@@ -96,7 +96,7 @@ class FullscreenNotificationActivity : AppCompatActivity() {
                        putInt("content_type", content.id)
                    })
                    cancelNotification(content.id)
-                   finishAffinity()
+                   finish()
                }
 
            })
