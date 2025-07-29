@@ -45,6 +45,7 @@ class FirebaseRemoteConfigDataSource(
                 val targetFeature = jsonObject.optString("target_feature", null)
                 val customLayout = jsonObject.optInt("custom_layout", -1).takeIf { it != -1 }
                 val notificationType = jsonObject.optString("notification_type", "STANDARD") // Thêm trường mới
+                val repeatTimeMinutes = jsonObject.getInt("repeat_time_minutes")
 
                 configs.add(
                     NotificationConfig(
@@ -61,7 +62,8 @@ class FirebaseRemoteConfigDataSource(
                         targetFeature = targetFeature,
                         customLayout = customLayout,
                         activityClassName = activityClass,
-                        notificationType = notificationType
+                        notificationType = notificationType,
+                        repeatTimeMinutes = repeatTimeMinutes
                     )
                 )
             }

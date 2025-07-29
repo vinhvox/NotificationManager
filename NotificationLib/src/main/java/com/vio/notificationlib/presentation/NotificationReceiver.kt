@@ -67,7 +67,11 @@ class NotificationReceiver : BroadcastReceiver() {
 
             if (config.repeat) {
                 val scheduler = AlarmNotificationScheduler(context)
-                scheduler.setSingleSchedule(config)
+                if(config.repeatTimeMinutes>0){
+                    scheduler.scheduleConfigWithRepeatMinutes(config)
+                }else{
+                    scheduler.setSingleSchedule(config)
+                }
                 Log.d(TAG, "Rescheduled repeating notification: id=${config.id}, day=$day")
             }
         } catch (e: Exception) {

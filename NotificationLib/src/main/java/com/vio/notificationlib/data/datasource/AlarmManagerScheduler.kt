@@ -33,7 +33,17 @@ class AlarmNotificationScheduler(private val context: Context) : NotificationSch
             }
         }
     }
+    fun scheduleConfigWithRepeatMinutes(config: NotificationConfig) {
+        if (config.repeatTimeMinutes > 0) {
+            scheduleRepeatByMinutes(config, config.repeatTimeMinutes)
+        } else {
+            Log.w(TAG, "repeatTimeMinutes null hoặc <= 0, không lặp")
+        }
+    }
 
+    /**
+     * Dành cho kiểu lặp theo ngày/tuần/tháng
+     */
     override fun setSingleSchedule(config: NotificationConfig) {
         when (config.scheduleType.lowercase()) {
             "daily" -> scheduleDaily(config)
@@ -42,6 +52,51 @@ class AlarmNotificationScheduler(private val context: Context) : NotificationSch
             else -> Log.w(TAG, "Unknown schedule type: ${config.scheduleType}")
         }
     }
+    private fun scheduleRepeatByMinutes(config: NotificationConfig, minutes: Int) {
+        val now = System.currentTimeMillis()
+        val nextTriggerAt = now + minutes * 60 * 1000L
+
+        val endOfToday = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 23)
+            set(Calendar.MINUTE, 59)
+            set(Calendar.SECOND, 59)
+            set(Calendar.MILLISECOND, 999)
+        }.timeInMillis
+
+        if (nextTriggerAt > endOfToday) {
+            Log.d(TAG, "⏹ Dừng lặp vì đã hết ngày: id=${config.id}")
+            return
+        }
+
+        val intent = Intent(context, NotificationReceiver::class.java).apply {
+            putExtra("config", config)
+            putExtra("time_show", nextTriggerAt)
+        }
+
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            config.id,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager.canScheduleExactAlarms()) {
+            alarmManager.setAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                nextTriggerAt,
+                pendingIntent
+            )
+        } else {
+            alarmManager.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                nextTriggerAt,
+                pendingIntent
+            )
+        }
+
+        Log.d(TAG, "🔁 Đã lặp sau $minutes phút, kế tiếp lúc ${nextTriggerAt.longToDateString()}")
+    }
+
 
     override fun cancelNotification(config: NotificationConfig) {
         val days = when (config.scheduleType.lowercase()) {
