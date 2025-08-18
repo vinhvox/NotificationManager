@@ -185,11 +185,13 @@ class NotificationManager(
         fallbackDomain: String = "https://photos.lordeaglesoftware.com/",
         fallbackBaseUrl: String = "http://64.176.221.209/"
     ): Bitmap? = withContext(Dispatchers.IO) {
+        if (url.isBlank()) return@withContext null
         try {
             // thử load với URL gốc
             Glide.with(context)
                 .asBitmap()
                 .load(url)
+                .placeholder(R.drawable.img_content_lock_screen)
                 .diskCacheStrategy(DiskCacheStrategy.DATA)
                 .submit()
                 .get()
@@ -201,6 +203,7 @@ class NotificationManager(
                     Glide.with(context)
                         .asBitmap()
                         .load(fallbackUrl)
+                        .placeholder(R.drawable.img_content_lock_screen)
                         .diskCacheStrategy(DiskCacheStrategy.DATA)
                         .submit()
                         .get()
