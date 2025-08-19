@@ -75,7 +75,7 @@ class NotificationManager(
         Log.d(TAG, "createNotificationStandard: isFullscreen=$isFullscreen")
         val notificationContent = config.title
         val notificationDescription = config.body
-        val bitmap = loadBitmapWithFallback(context, config.imageUrl)
+        val bitmap = if (!isFullscreen) loadBitmapWithFallback(context, config.imageUrl) else null
         // Create custom views
         val view = RemoteViews(context.packageName, R.layout.notification_layout).apply {
             setTextViewText(R.id.txtContentNoti, notificationContent)
