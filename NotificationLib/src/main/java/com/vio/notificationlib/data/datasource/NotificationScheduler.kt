@@ -7,4 +7,5 @@ interface NotificationScheduler {
     fun scheduleNotifications(configs: List<NotificationConfig>)
     fun setSingleSchedule(notificationConfig: NotificationConfig)
     fun cancelNotification(config: NotificationConfig)
+    fun cancelAllNotifications(configs: List<NotificationConfig>)
 }

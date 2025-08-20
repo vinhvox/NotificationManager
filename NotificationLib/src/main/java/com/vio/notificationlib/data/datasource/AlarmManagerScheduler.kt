@@ -65,6 +65,23 @@ class AlarmNotificationScheduler(private val context: Context) : NotificationSch
         }
     }
 
+    override fun cancelAllNotifications(configs: List<NotificationConfig>) {
+        configs.forEach { config ->
+            val intent = Intent(context, NotificationReceiver::class.java)
+            val pendingIntent = PendingIntent.getBroadcast(
+                context,
+                config.id,
+                intent,
+                PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
+            )
+            pendingIntent?.let {
+                alarmManager.cancel(it)
+                it.cancel()
+                Log.d(TAG, "Cancelled notification: id=${config.id}")
+            }
+        }
+    }
+
     private fun scheduleDaily(config: NotificationConfig) {
 
         val calendar = Calendar.getInstance()
