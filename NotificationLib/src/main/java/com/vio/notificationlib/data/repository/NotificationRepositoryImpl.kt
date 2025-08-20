@@ -16,4 +16,8 @@ class NotificationRepositoryImpl(
     override suspend fun scheduleNotifications(configs: List<NotificationConfig>) {
         scheduler.scheduleNotifications(configs)
     }
+
+    override suspend fun cancelScheduleNotifications(configs: List<NotificationConfig>) {
+        scheduler.cancelAllNotifications(configs)
+    }
 }

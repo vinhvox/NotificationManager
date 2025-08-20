@@ -61,7 +61,7 @@ class FullscreenNotificationActivity : AppCompatActivity() {
                Firebase.analytics.logEvent("content_lockscreen_click", bundleOf().apply {
                    putInt("content_type", content.id)
                })
-               val intent = Intent(this, content.activityClassName).apply {
+               val intent = Intent(this, content.getActivityClass()).apply {
                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
                    putExtra("isFromLockScreen", true)
                    putExtra("target_feature", content.targetFeature)
@@ -74,7 +74,7 @@ class FullscreenNotificationActivity : AppCompatActivity() {
                Firebase.analytics.logEvent("content_lockscreen_click", bundleOf().apply {
                    putInt("content_type", content.id)
                })
-               val intent = Intent(this, content.activityClassName).apply {
+               val intent = Intent(this, content.getActivityClass()).apply {
                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
                    putExtra("isFromLockScreen", true)
                    putExtra("target_feature", content.targetFeature)

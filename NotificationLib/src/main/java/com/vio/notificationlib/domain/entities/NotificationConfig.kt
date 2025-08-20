@@ -18,6 +18,15 @@ data class NotificationConfig(
     val repeat: Boolean = false,
     val targetFeature: String? = null,
     val customLayout: Int? = null,
-    val activityClassName: Class<*>,
+    val activityClassName: String, // <-- String thay vì Class<*>
     val notificationType: String = "STANDARD" // STANDARD hoặc FULLSCREEN
-) : Parcelable
+) : Parcelable {
+
+    fun getActivityClass(): Class<*>? {
+        return try {
+            Class.forName(activityClassName)
+        } catch (e: ClassNotFoundException) {
+            null
+        }
+    }
+}

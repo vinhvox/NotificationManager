@@ -33,7 +33,7 @@ class NotificationReceiver : BroadcastReceiver() {
 
         Log.d(
             TAG,
-            "Received config: id=${config.id}, title=${config.title}, body=${config.body}, day=$day, activityClassName=$activityClassName   ${config.activityClassName.simpleName}"
+            "Received config: id=${config.id}, title=${config.title}, body=${config.body}, day=$day, activityClassName=$activityClassName   ${config.getActivityClass()?.simpleName}"
         )
 
         try {

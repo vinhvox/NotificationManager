@@ -60,7 +60,7 @@ class FirebaseRemoteConfigDataSource(
                         repeat = repeat,
                         targetFeature = targetFeature,
                         customLayout = customLayout,
-                        activityClassName = activityClass,
+                        activityClassName = activityClass.name,
                         notificationType = notificationType
                     )
                 )

@@ -163,7 +163,7 @@ class NotificationManager(
 
     private fun getPendingIntentActivity(config: NotificationConfig): PendingIntent? {
 
-        return config.activityClassName.let {
+        return config.getActivityClass().let {
             val intent = Intent(context, it).apply {
                 config.targetFeature?.let { feature -> putExtra("target_feature", feature) }
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
