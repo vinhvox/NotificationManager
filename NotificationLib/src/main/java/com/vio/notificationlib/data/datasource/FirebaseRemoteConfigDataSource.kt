@@ -31,20 +31,27 @@ class FirebaseRemoteConfigDataSource(
             for (i in 0 until jsonArray.length()) {
                 val jsonObject = jsonArray.getJSONObject(i)
                 val id = jsonObject.getInt("id")
-                val title = jsonObject.getString("title")
-                val body = jsonObject.getString("body")
-                val cta = jsonObject.getString("cta")
-                val imageUrl = jsonObject.getString("imageUrl")
-                val backgroundUrl = jsonObject.getString("backgroundUrl")
-                val scheduleType = jsonObject.getString("schedule_type")
+                val title =
+                    jsonObject.getString("title").takeIf { !it.isNullOrEmpty() } ?: "Notification"
+                val body = jsonObject.getString("body").takeIf { !it.isNullOrEmpty() } ?: "Content"
+                val cta = jsonObject.getString("cta").takeIf { !it.isNullOrEmpty() } ?: "View Now"
+                val imageUrl = jsonObject.getString("imageUrl").takeIf { !it.isNullOrEmpty() } ?: ""
+                val backgroundUrl =
+                    jsonObject.getString("backgroundUrl").takeIf { !it.isNullOrEmpty() } ?: ""
+                val scheduleType =
+                    jsonObject.getString("schedule_type").takeIf { !it.isNullOrEmpty() } ?: "weekly"
                 val timeConfig = parseTimeConfig(jsonObject.getJSONObject("schedule_time"))
                 val days = jsonObject.optJSONArray("days")?.let { array ->
                     (0 until array.length()).map { array.getInt(it) }
                 }
                 val repeat = jsonObject.optBoolean("repeat", false)
-                val targetFeature = jsonObject.optString("target_feature", null)
+                val targetFeature =
+                    jsonObject.optString("target_feature", "").takeIf { !it.isNullOrEmpty() }
+                        ?: "home"
                 val customLayout = jsonObject.optInt("custom_layout", -1).takeIf { it != -1 }
-                val notificationType = jsonObject.optString("notification_type", "STANDARD") // Thêm trường mới
+                val notificationType =
+                    jsonObject.optString("notification_type").takeIf { !it.isNullOrEmpty() }
+                        ?: "STANDARD"
 
                 configs.add(
                     NotificationConfig(
