@@ -48,27 +48,34 @@ class NotificationReceiver : BroadcastReceiver() {
                     intent.getLongExtra("time_show", 0)
                 )
             ) {
-                when (config.notificationType) {
-                    "FULLSCREEN" -> {
-                        if (isDeviceLockedOrNotInteractive){
+                try {
+                    when (config.notificationType ?: "STANDARD") {
+                        "FULLSCREEN" -> {
+                            if (isDeviceLockedOrNotInteractive) {
+                                val notificationManager = NotificationManager(context)
+                                notificationManager.showNotification(config)
+                            }
+                        }
+
+                        else -> {
                             val notificationManager = NotificationManager(context)
                             notificationManager.showNotification(config)
                         }
-
                     }
-                    else -> {
-                        val notificationManager = NotificationManager(context)
-                        notificationManager.showNotification(config)
-                    }
+                } catch (e: RuntimeException) {
+                    Log.e(TAG, "Error showing notification: ${e.message}")
                 }
-
             }
             Log.d(TAG, "NotificationReceiver completed successfully for id=${config.id}")
 
-            if (config.repeat) {
-                val scheduler = AlarmNotificationScheduler(context)
-                scheduler.setSingleSchedule(config)
-                Log.d(TAG, "Rescheduled repeating notification: id=${config.id}, day=$day")
+            try {
+                if (config.repeat ?: false) {
+                    val scheduler = AlarmNotificationScheduler(context)
+                    scheduler.setSingleSchedule(config)
+                    Log.d(TAG, "Rescheduled repeating notification: id=${config.id}, day=$day")
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error rescheduling repeating notification: ${e.message}")
             }
         } catch (e: Exception) {
             Log.e(TAG, "NotificationReceiver failed for id=${config.id}", e)

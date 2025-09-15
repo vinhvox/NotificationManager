@@ -15,11 +15,11 @@ data class NotificationConfig(
     val scheduleType: String,
     val scheduleTime: TimeConfig,
     val days: List<Int>? = null,
-    val repeat: Boolean = false,
+    val repeat: Boolean? = false,
     val targetFeature: String? = null,
     val customLayout: Int? = null,
-    val activityClassName: String, // <-- String thay vì Class<*>
-    val notificationType: String = "STANDARD" // STANDARD hoặc FULLSCREEN
+    var notificationType: String?, // STANDARD hoặc FULLSCREEN
+    val activityClassName: String // <-- String thay vì Class<*>
 ) : Parcelable {
 
     fun getActivityClass(): Class<*>? {
