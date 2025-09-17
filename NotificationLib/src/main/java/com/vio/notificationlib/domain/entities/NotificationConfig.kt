@@ -1,10 +1,6 @@
 package com.vio.notificationlib.domain.entities
 
 
-import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
-
-@Parcelize
 data class NotificationConfig(
     val id: Int,
     val title: String,
@@ -15,13 +11,12 @@ data class NotificationConfig(
     val scheduleType: String,
     val scheduleTime: TimeConfig,
     val days: List<Int>? = null,
-    val repeat: Boolean? = false,
+    val repeat: Boolean = false,
     val targetFeature: String? = null,
     val customLayout: Int? = null,
-    var notificationType: String?, // STANDARD hoặc FULLSCREEN
-    val activityClassName: String // <-- String thay vì Class<*>
-) : Parcelable {
-
+    val activityClassName: String, // <-- String thay vì Class<*>
+    val notificationType: String = "STANDARD" // STANDARD hoặc FULLSCREEN
+) {
     fun getActivityClass(): Class<*>? {
         return try {
             Class.forName(activityClassName)
