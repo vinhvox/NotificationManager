@@ -8,6 +8,7 @@ import android.os.Build
 import android.util.Log
 import com.vio.notificationlib.domain.entities.NotificationConfig
 import com.vio.notificationlib.presentation.NotificationReceiver
+import com.vio.notificationlib.utils.putJsonExtra
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -92,7 +93,7 @@ class AlarmNotificationScheduler(private val context: Context) : NotificationSch
             calendar.add(Calendar.DATE, 1)
         }
         val intent = Intent(context, NotificationReceiver::class.java).apply {
-            putExtra("config", config)
+            putJsonExtra("config", config)
             putExtra("time_show", calendar.timeInMillis)
         }
         val pendingIntent = PendingIntent.getBroadcast(
@@ -140,7 +141,7 @@ class AlarmNotificationScheduler(private val context: Context) : NotificationSch
                 calendar.add(Calendar.DATE, 7)
             }
             val intent = Intent(context, NotificationReceiver::class.java).apply {
-                putExtra("config", config)
+                putJsonExtra("config", config)
                 putExtra("time_show", calendar.timeInMillis)
             }
             val pendingIntent = PendingIntent.getBroadcast(
@@ -195,7 +196,7 @@ class AlarmNotificationScheduler(private val context: Context) : NotificationSch
                             calendar.add(Calendar.DATE, 31)
                         }
                         val intent = Intent(context, NotificationReceiver::class.java).apply {
-                            putExtra("config", config)
+                            putJsonExtra("config", config)
                             putExtra("time_show", calendar.timeInMillis)
                         }
                         val pendingIntent = PendingIntent.getBroadcast(
@@ -227,7 +228,7 @@ class AlarmNotificationScheduler(private val context: Context) : NotificationSch
                             calendar.add(Calendar.DATE, 30)
                         }
                         val intent = Intent(context, NotificationReceiver::class.java).apply {
-                            putExtra("config", config)
+                            putJsonExtra("config", config)
                             putExtra("time_show", calendar.timeInMillis)
                         }
                         val pendingIntent = PendingIntent.getBroadcast(
@@ -261,7 +262,7 @@ class AlarmNotificationScheduler(private val context: Context) : NotificationSch
                                 calendar.add(Calendar.DATE, 29)
                             }
                             val intent = Intent(context, NotificationReceiver::class.java).apply {
-                                putExtra("config", config)
+                                putJsonExtra("config", config)
                                 putExtra("time_show", calendar.timeInMillis)
                             }
                             val pendingIntent = PendingIntent.getBroadcast(
@@ -280,7 +281,7 @@ class AlarmNotificationScheduler(private val context: Context) : NotificationSch
                                 calendar.add(Calendar.DATE, 28)
                             }
                             val intent = Intent(context, NotificationReceiver::class.java).apply {
-                                putExtra("config", config)
+                                putJsonExtra("config", config)
                                 putExtra("time_show", calendar.timeInMillis)
                             }
                             val pendingIntent = PendingIntent.getBroadcast(

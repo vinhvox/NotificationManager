@@ -19,6 +19,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.vio.notificationlib.R
 import com.vio.notificationlib.domain.entities.NotificationConfig
+import com.vio.notificationlib.utils.putJsonExtra
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -116,7 +117,7 @@ class NotificationManager(
         if (isFullscreen && isDeviceLocked(context)) {
             val fullScreenIntent =
                 Intent(context, FullscreenNotificationActivity::class.java).apply {
-                    putExtra("schedule_data", config)
+                    putJsonExtra("schedule_data", config)
                     putExtra("title", config.title)
                     putExtra("body", config.body)
                     config.targetFeature?.let { putExtra("target_feature", it) }

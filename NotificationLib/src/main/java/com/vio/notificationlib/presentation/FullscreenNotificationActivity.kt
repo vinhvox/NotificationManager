@@ -2,7 +2,6 @@ package com.vio.notificationlib.presentation
 
 import android.content.Intent
 import android.graphics.drawable.Drawable
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -24,6 +23,7 @@ import com.google.firebase.analytics.analytics
 import com.vio.notificationlib.R
 import com.vio.notificationlib.databinding.ActivityFullscreenNotificationBinding
 import com.vio.notificationlib.domain.entities.NotificationConfig
+import com.vio.notificationlib.utils.getJsonExtra
 
 class FullscreenNotificationActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,11 +36,7 @@ class FullscreenNotificationActivity : AppCompatActivity() {
                     WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or
                     WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
         )
-       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent.getParcelableExtra("schedule_data", NotificationConfig::class.java)
-        } else {
-            intent.getParcelableExtra("schedule_data")
-        }?.let { content ->
+        intent.getJsonExtra<NotificationConfig>("schedule_data")?.let { content ->
            Firebase.analytics.logEvent("content_lockscreen_view", bundleOf().apply {
                putInt("content_type", content.id)
            })
