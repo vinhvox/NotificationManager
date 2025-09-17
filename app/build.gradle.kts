@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "com.vio.notificationmanager"
-        minSdk = 21
+        minSdk = 23
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -20,13 +20,28 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        create("release") {
+            keyAlias = "key_release"
+            keyPassword = "Vinh0340"
+            storeFile = file("key/key_release.jks")
+            storePassword = "Vinh0340"
+        }
+    }
+
     buildTypes {
-        release {
+        debug {
             isMinifyEnabled = false
+        }
+        release {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            isCrunchPngs = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.findByName("release")
         }
     }
     compileOptions {
