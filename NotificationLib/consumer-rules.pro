@@ -49,3 +49,7 @@
     public static **[] values();
     public static ** valueOf(java.lang.String);
 }
+
+# Gson specific classes
+-keep class com.google.gson.stream.** { *; }
+-keep class com.google.gson.** { *; }

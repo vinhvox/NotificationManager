@@ -8,6 +8,7 @@ import android.os.Build
 import android.util.Log
 import com.vio.notificationlib.data.datasource.AlarmNotificationScheduler
 import com.vio.notificationlib.domain.entities.NotificationConfig
+import com.vio.notificationlib.utils.getJsonExtra
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -18,11 +19,8 @@ class NotificationReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         Log.d(TAG, "NotificationReceiver started at ${dateFormat.format(Date())}")
-        val config = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent.getParcelableExtra("config", NotificationConfig::class.java)
-        } else {
-            intent.getParcelableExtra("config")
-        }
+        val config = intent.getJsonExtra<NotificationConfig>("config")
+        Log.d(TAG, "onReceive: config: $config")
         val day = intent.getIntExtra("day", 0)
         val activityClassName = intent.getStringExtra("activity_class_name")
 
@@ -48,27 +46,34 @@ class NotificationReceiver : BroadcastReceiver() {
                     intent.getLongExtra("time_show", 0)
                 )
             ) {
-                when (config.notificationType) {
-                    "FULLSCREEN" -> {
-                        if (isDeviceLockedOrNotInteractive){
+                try {
+                    when (config.notificationType ?: "STANDARD") {
+                        "FULLSCREEN" -> {
+                            if (isDeviceLockedOrNotInteractive) {
+                                val notificationManager = NotificationManager(context)
+                                notificationManager.showNotification(config)
+                            }
+                        }
+
+                        else -> {
                             val notificationManager = NotificationManager(context)
                             notificationManager.showNotification(config)
                         }
-
                     }
-                    else -> {
-                        val notificationManager = NotificationManager(context)
-                        notificationManager.showNotification(config)
-                    }
+                } catch (e: RuntimeException) {
+                    Log.e(TAG, "Error showing notification: ${e.message}")
                 }
-
             }
             Log.d(TAG, "NotificationReceiver completed successfully for id=${config.id}")
 
-            if (config.repeat) {
-                val scheduler = AlarmNotificationScheduler(context)
-                scheduler.setSingleSchedule(config)
-                Log.d(TAG, "Rescheduled repeating notification: id=${config.id}, day=$day")
+            try {
+                if (config.repeat ?: false) {
+                    val scheduler = AlarmNotificationScheduler(context)
+                    scheduler.setSingleSchedule(config)
+                    Log.d(TAG, "Rescheduled repeating notification: id=${config.id}, day=$day")
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error rescheduling repeating notification: ${e.message}")
             }
         } catch (e: Exception) {
             Log.e(TAG, "NotificationReceiver failed for id=${config.id}", e)
