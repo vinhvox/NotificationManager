@@ -111,7 +111,7 @@ class FullscreenNotificationActivity : AppCompatActivity() {
     private fun ImageView.loadWithFallback(
         url: String,
         placeholderRes: Int,
-        fallbackDomain: String = "https://photos.lordeaglesoftware.com/",
+        fallbackDomain: String = "https://photos.pandaglobal.top/",
         fallbackBaseUrl: String = "http://64.176.221.209/"
     ) {
         val context = this.context

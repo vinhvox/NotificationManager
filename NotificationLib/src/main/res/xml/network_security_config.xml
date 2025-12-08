@@ -4,5 +4,7 @@
         <domain includeSubdomains="true">photos.lordeaglesoftware.com</domain>
         <domain includeSubdomains="true">64.176.221.209</domain>
         <domain includeSubdomains="true">https://photos.lordeaglesoftware.com/</domain>
+        <domain includeSubdomains="true">https://photos.pandaglobal.top/</domain>
+        <domain includeSubdomains="true">photos.pandaglobal.top</domain>
     </domain-config>
 </network-security-config>
