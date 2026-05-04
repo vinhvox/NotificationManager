@@ -5,8 +5,8 @@
     android:id="@+id/ctlPattenLock"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center">
+    android:gravity="center"
+    android:orientation="vertical">
 
     <ImageView
         android:id="@+id/imgBackground"
@@ -26,8 +26,20 @@
         android:textColor="@color/white"
         android:textFontWeight="500"
         android:textSize="@dimen/_16ssp"
-        app:layout_constraintBottom_toTopOf="@+id/txtDescriptionNoti"
+        app:layout_constraintBottom_toTopOf="@+id/txtAmount"
         tools:layout_editor_absoluteX="19dp" />
+
+    <TextView
+        android:id="@+id/txtAmount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/_15sdp"
+        android:layout_marginBottom="@dimen/_10sdp"
+        android:textColor="#f7f7f7"
+        android:textFontWeight="400"
+        android:textSize="@dimen/_12ssp"
+        app:layout_constraintBottom_toTopOf="@+id/txtDescriptionNoti"
+        app:layout_constraintStart_toStartOf="@+id/txtContentNoti" />
 
     <TextView
         android:id="@+id/txtDescriptionNoti"

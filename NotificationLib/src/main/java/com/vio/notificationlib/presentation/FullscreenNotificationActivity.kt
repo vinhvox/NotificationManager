@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.net.toUri
 import androidx.core.os.bundleOf
+import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
@@ -48,6 +49,8 @@ class FullscreenNotificationActivity : AppCompatActivity() {
 
             binding.txtContentNoti.text = content.title
             binding.txtDescriptionNoti.text = content.body
+            binding.txtAmount.text = content.amount
+            binding.txtAmount.isVisible = !content.amount.isNullOrEmpty()
             binding.txtOpenNow.text = content.cta
             lifecycleScope.launch(Dispatchers.Main) {
                 val bitmap = if (!content.imageUrl.isBlank()) {
@@ -66,8 +69,6 @@ class FullscreenNotificationActivity : AppCompatActivity() {
                 }
 
                 binding.imgContent.setImageBitmap(bitmap)
-
-
             }
             binding.imgBackground.loadWithFallback(
                 url = content.backgroundUrl,
