@@ -84,7 +84,7 @@ class AlarmNotificationScheduler(private val context: Context) : NotificationSch
     }
 
     private fun scheduleDaily(config: NotificationConfig) {
-
+        if (config.scheduleTime == null) return
         val calendar = Calendar.getInstance()
         calendar.set(Calendar.HOUR_OF_DAY, config.scheduleTime.hour)
         calendar.set(Calendar.MINUTE, config.scheduleTime.minute)
@@ -126,6 +126,7 @@ class AlarmNotificationScheduler(private val context: Context) : NotificationSch
     }
 
     private fun scheduleWeekly(config: NotificationConfig) {
+        if (config.scheduleTime == null) return
         val days = config.days ?: listOf(1, 2, 3, 4, 5, 6, 7)
 
         days.forEach { day ->
@@ -181,6 +182,7 @@ class AlarmNotificationScheduler(private val context: Context) : NotificationSch
     }
 
     private fun scheduleMonthly(config: NotificationConfig) {
+        if (config.scheduleTime == null) return
         val days = config.days ?: (1..31).toList()
         days.forEach { day ->
             if (day in 1..31) {

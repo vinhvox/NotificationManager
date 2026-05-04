@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.net.toUri
 import androidx.core.os.bundleOf
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -24,6 +25,10 @@ import com.vio.notificationlib.R
 import com.vio.notificationlib.databinding.ActivityFullscreenNotificationBinding
 import com.vio.notificationlib.domain.entities.NotificationConfig
 import com.vio.notificationlib.utils.getJsonExtra
+import com.vio.notificationlib.utils.loadBitmapWithFallback
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.io.File
 
 class FullscreenNotificationActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,17 +42,33 @@ class FullscreenNotificationActivity : AppCompatActivity() {
                     WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
         )
         intent.getJsonExtra<NotificationConfig>("schedule_data")?.let { content ->
-           Firebase.analytics.logEvent("content_lockscreen_view", bundleOf().apply {
-               putInt("content_type", content.id)
-           })
+            Firebase.analytics.logEvent("content_lockscreen_view", bundleOf().apply {
+                putInt("content_type", content.id)
+            })
 
-           binding.txtContentNoti.text = content.title
+            binding.txtContentNoti.text = content.title
             binding.txtDescriptionNoti.text = content.body
             binding.txtOpenNow.text = content.cta
-            binding.imgContent.loadWithFallback(
-                url = content.imageUrl,
-                placeholderRes = R.drawable.img_content_lock_screen
-            )
+            lifecycleScope.launch(Dispatchers.Main) {
+                val bitmap = if (!content.imageUrl.isBlank()) {
+                    loadBitmapWithFallback(this@FullscreenNotificationActivity, content.imageUrl)
+                }  else {
+                    if (content.imageRes != null){
+                        loadBitmapWithFallback(this@FullscreenNotificationActivity, content.imageRes)
+                    } else {
+                        val fileCache = File(content.imageLocalPath ?: "")
+                        if (fileCache.exists()){
+                            loadBitmapWithFallback(this@FullscreenNotificationActivity, fileCache)
+                        } else {
+                            loadBitmapWithFallback(this@FullscreenNotificationActivity, R.drawable.img_content_lock_screen)
+                        }
+                    }
+                }
+
+                binding.imgContent.setImageBitmap(bitmap)
+
+
+            }
             binding.imgBackground.loadWithFallback(
                 url = content.backgroundUrl,
                 placeholderRes = R.drawable.img_bg_lock_screen
@@ -95,7 +116,7 @@ class FullscreenNotificationActivity : AppCompatActivity() {
                    finish()
                }
 
-           })
+            })
         }
 
     }

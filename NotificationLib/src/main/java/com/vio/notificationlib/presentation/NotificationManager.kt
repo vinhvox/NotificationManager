@@ -19,11 +19,13 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.vio.notificationlib.R
 import com.vio.notificationlib.domain.entities.NotificationConfig
+import com.vio.notificationlib.utils.loadBitmapWithFallback
 import com.vio.notificationlib.utils.putJsonExtra
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -76,7 +78,24 @@ class NotificationManager(
         Log.d(TAG, "createNotificationStandard: isFullscreen=$isFullscreen")
         val notificationContent = config.title
         val notificationDescription = config.body
-        val bitmap = if (!isFullscreen) loadBitmapWithFallback(context, config.imageUrl) else null
+        val bitmap = if (isFullscreen){
+            if (!config.imageUrl.isBlank()) {
+                loadBitmapWithFallback(context, config.imageUrl)
+            }  else {
+                if (config.imageRes != null){
+                    loadBitmapWithFallback(context, config.imageRes)
+                } else {
+                    val fileCache = File(config.imageLocalPath ?: "")
+                    if (fileCache.exists()){
+                        loadBitmapWithFallback(context, fileCache)
+                    } else {
+                        loadBitmapWithFallback(context, R.drawable.img_content_lock_screen)
+                    }
+                }
+            }
+        } else {
+             null
+        }
         // Create custom views
         val view = RemoteViews(context.packageName, R.layout.notification_layout).apply {
             setTextViewText(R.id.txtContentNoti, notificationContent)
@@ -180,39 +199,4 @@ class NotificationManager(
         private const val TAG = "NotificationManager"
     }
 
-    suspend fun loadBitmapWithFallback(
-        context: Context,
-        url: String,
-        fallbackDomain: String = "https://photos.lordeaglesoftware.com/",
-        fallbackBaseUrl: String = "http://64.176.221.209/"
-    ): Bitmap? = withContext(Dispatchers.IO) {
-        if (url.isBlank()) return@withContext null
-        try {
-            // thử load với URL gốc
-            Glide.with(context)
-                .asBitmap()
-                .load(url)
-                .placeholder(R.drawable.img_content_lock_screen)
-                .diskCacheStrategy(DiskCacheStrategy.DATA)
-                .submit()
-                .get()
-        } catch (e: Exception) {
-            Log.d(TAG, "loadBitmapWithFallback: ${e.message}")
-            if (url.contains(fallbackDomain)) {
-                val fallbackUrl = url.replace(fallbackDomain, fallbackBaseUrl)
-                try {
-                    Glide.with(context)
-                        .asBitmap()
-                        .load(fallbackUrl)
-                        .placeholder(R.drawable.img_content_lock_screen)
-                        .diskCacheStrategy(DiskCacheStrategy.DATA)
-                        .submit()
-                        .get()
-                } catch (e2: Exception) {
-                    Log.d(TAG, "loadBitmapWithFallback: ${e2.message}")
-                    null
-                }
-            } else null
-        }
-    }
 }

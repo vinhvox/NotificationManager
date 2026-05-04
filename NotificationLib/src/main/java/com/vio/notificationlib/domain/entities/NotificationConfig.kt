@@ -1,5 +1,7 @@
 package com.vio.notificationlib.domain.entities
 
+import androidx.annotation.DrawableRes
+
 
 data class NotificationConfig(
     val id: Int,
@@ -7,9 +9,11 @@ data class NotificationConfig(
     val body: String,
     val cta: String,
     val imageUrl: String,
+    @param:DrawableRes val imageRes: Int? = null,
+    val imageLocalPath: String? = null,
     val backgroundUrl: String,
     val scheduleType: String,
-    val scheduleTime: TimeConfig,
+    val scheduleTime: TimeConfig?= null,
     val days: List<Int>? = null,
     val repeat: Boolean = false,
     val targetFeature: String? = null,
